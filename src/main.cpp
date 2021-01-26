@@ -101,6 +101,7 @@ auto main() -> int { // or int main()
     {
         auto new_list_elem = std::make_shared<List>(3);
         new_list_elem->print();
+        // list_ptr --- это голова (начало) списка
         new_list_elem->next = list_ptr;
         new_list_elem->print();
         list_ptr = new_list_elem;
@@ -122,7 +123,8 @@ auto main() -> int { // or int main()
     auto second = list2_ref->next;
     {
         auto second_prev = second->prev.lock();
-        std::cout << "prev to second is " << second_prev->value << "\n";
+        if (second_prev)
+            std::cout << "prev to second is " << second_prev->value << "\n";
     }
 
     struct Tree {
