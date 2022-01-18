@@ -112,10 +112,28 @@ auto main() -> int {                   // def main() -> int:
     // dict = {1: "one", 2: "two"}
     for (auto [key, value] : dict) // for key, value in dict.items()
         std::cout << "dict[" << key << "] = " << value << "\n";
+    std::cout << "I repeat, dict[1] = " << dict[1] << "\n";
+    dict[3] = "three";
+    std::cout << "dict[3] = " << dict.at(3) << "\n";
+    {
+        auto [iter, inserted] = dict.try_emplace(4, "four");
+        if (inserted)
+            std::cout << "I inserted dict[4]\n";
+        else
+            std::cout << "I already had dict[4]\n";
+    } // здесь заканчивается iter и inserted
+    {
+        auto [iter, inserted] = dict.try_emplace(2, "bad");
+        if (inserted)
+            std::cout << "I inserted dict[2]\n";
+        else
+            std::cout << "I already had dict[2] = " << dict.at(2) << "\n";
+    } // здесь заканчивается iter и inserted
 
     std::cout << "After change of elements\n";
     for (auto &[key, value] : dict) // for key in dict:
         value += value;             //     dict[key] += dict[key]
+    // for (auto const &[key, value] : dict) // хороший стиль
     for (auto &[key, value] : dict) // for key, value in dict.items()
         std::cout << "dict[" << key << "] = " << value << "\n";
 
