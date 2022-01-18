@@ -1,10 +1,12 @@
 #include "lib.hpp"
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-auto sqr(int a) { return a * a; }
+auto sqr(auto a) { return a * a; }
 
 auto bad_increment(int a) { return ++a; } // Не увеличивает переменную
 auto increment(int &a) { return ++a; }
@@ -12,15 +14,16 @@ auto increment(int &a) { return ++a; }
 auto make_array(size_t my_size) {
     auto array = std::vector(my_size, 0);
     // ^ Создаёт массив длины my_size из нулей
-    for (size_t i = 0; i < my_size; ++i)
-        array[i] = int(i);
+    for (auto i = size_t(0); i < my_size; ++i)
+        array[i] = static_cast<int>(i);
     return array;
 }
 
 auto sum(std::vector<int> const &array) {
-    int result = 0;
-    for (int elem : array)
+    auto result = 0;
+    for (auto elem : array)
         result += elem;
+    // array[0] = 3; // Error!
     return result;
 }
 
@@ -33,17 +36,27 @@ struct Person { // как @dataclass
         name = arg_name;
         age = arg_age;
     }
+
+    auto get_name() const { return name; }
+
+    auto operator==(Person const &other) const -> bool = default;
 };
+
+auto get_person_name(Person const &person) { return person.get_name(); }
 
 auto make_person(std::string name, int age) { return Person{name, age}; }
 
 void print(Person const &person) {
+    fmt::print("Person(\"{}\", {})\n", person.name, person.age);
+    std::cout << fmt::format("Person(\"{}\", {})\n", person.name, person.age);
     std::cout << "Person(\"" << person.name << "\", " << person.age << ")\n";
 }
 
 auto main() -> int { // or int main()
+    using namespace std::literals;
     std::cout << not_random() << "\n";
     std::cout << sqr(not_random()) << "\n";
+    // sqr("123"s); // Error!
     auto value = 0;
     std::cout << value << " ";
     std::cout << increment(value) << " "; // increment(3) - error
@@ -54,6 +67,7 @@ auto main() -> int { // or int main()
     auto array = make_array(my_size);
     std::cout << "Sum of variable array " << sum(array) << "\n";
     std::cout << "Sum of temporary array " << sum(make_array(my_size)) << "\n";
+    fmt::print("Small array {}\n", make_array(8));
 
     auto john = Person{"John", 23};
     std::cout << "Person(\"" << john.name << "\", " << john.age << ")\n";
