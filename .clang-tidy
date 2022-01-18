@@ -1,13 +1,12 @@
 ---
-Checks: >
-    bugprone-*,cppcoreguidelines-*,
+Checks: 'bugprone-*,cppcoreguidelines-*,
     readability-*,clang-analyzer-core-*,clang-analyzer-cplusplus-*,
     clang-analyzer-deadcode-*,clang-analyzer-nullability-*,
     -modernize-use-trailing-return-type,
     -hicpp-braces-around-statements,
     -readability-braces-around-statements,
     -misc-non-private-member-variables-in-classes,
-    -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers
+    -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers'
 HeaderFilterRegex: ''
 FormatStyle:     file
 

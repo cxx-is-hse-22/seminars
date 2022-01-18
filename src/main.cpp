@@ -11,11 +11,13 @@ auto sqr(auto a) { return a * a; }
 auto bad_increment(int a) { return ++a; } // Не увеличивает переменную
 auto increment(int &a) { return ++a; }
 
-auto make_array(size_t my_size) {
-    auto array = std::vector(my_size, 0);
+auto make_array(int my_size) {
+    if (my_size < 0)
+        my_size = 0;
+    auto array = std::vector(static_cast<std::size_t>(my_size), 0);
     // ^ Создаёт массив длины my_size из нулей
-    for (auto i = size_t(0); i < my_size; ++i)
-        array[i] = static_cast<int>(i);
+    for (auto i = 0; i < my_size; ++i)
+        array[static_cast<std::size_t>(i)] = i;
     return array;
 }
 
@@ -59,7 +61,8 @@ auto main() -> int { // or int main()
     // sqr("123"s); // Error!
     auto value = 0;
     std::cout << value << " ";
-    std::cout << increment(value) << " "; // increment(3) - error
+    std::cout << increment(value) << " ";
+    // increment(3); // error
     std::cout << value << "\n";
 
     auto const my_size = 1024;
