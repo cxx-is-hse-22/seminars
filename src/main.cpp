@@ -107,6 +107,8 @@ auto main() -> int {                   // def main() -> int:
     auto array_of_strings = std::vector<std::string>{};
 
     auto [a1, a2] = std::tuple{1, "str"s}; // a1, a2 = (1, "str")
+    auto t = std::tuple{2, "str2"s};
+    std::tie(a1, a2) = t;
 
     auto dict = std::map<int, std::string>{{1, "one"}, {2, "two"}};
     // dict = {1: "one", 2: "two"}
@@ -139,7 +141,7 @@ auto main() -> int {                   // def main() -> int:
 
     std::cout << "After change to dict2\n";
 
-    auto &dict2 = dict;
+    auto &dict2 = dict; // Искусственный пример
     dict2[3] = "three";
     for (auto [key, value] : dict) // for key, value in dict.items()
         std::cout << "dict[" << key << "] = " << value << "\n";
@@ -148,6 +150,10 @@ auto main() -> int {                   // def main() -> int:
     dict2 = std::map<int, std::string>{{1, "one"}, {2, "two"}};
     for (auto [key, value] : dict) // for key, value in dict.items()
         std::cout << "dict[" << key << "] = " << value << "\n";
+
+    auto str = std::string{};
+    while (std::getline(std::cin, str))
+        array_of_strings.push_back(str);
 
     return 0; // ОБЯЗАТЕЛЬНО!
 } // a исчезает здесь
