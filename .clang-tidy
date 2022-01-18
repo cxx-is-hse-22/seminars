@@ -7,7 +7,7 @@ Checks: >
     -hicpp-braces-around-statements,
     -readability-braces-around-statements,
     -misc-non-private-member-variables-in-classes,
-    -cppcoreguidelines-avoid-magic-numbers
+    -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers
 HeaderFilterRegex: ''
 FormatStyle:     file
 
