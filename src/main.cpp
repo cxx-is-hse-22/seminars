@@ -49,7 +49,7 @@ auto get_person_name(Person const &person) { return person.get_name(); }
 
 auto make_person(std::string name, int age) { return Person{name, age}; }
 
-void print(Person const &person) {
+auto print(Person const &person) -> void {
     fmt::print("Person(\"{}\", {})\n", person.name, person.age);
     std::cout << fmt::format("Person(\"{}\", {})\n", person.name, person.age);
     std::cout << "Person(\"" << person.name << "\", " << person.age << ")\n";
@@ -97,7 +97,8 @@ auto main() -> int { // or int main()
     // А ссылка не "владеет" им
     // Пока жив "владелец", живы все его "владения"
     auto vec = std::vector{1, 2, 3};
-    auto &vec0 = vec[0]; // NOLINT
+    auto &vec0 = vec[0];
+    vec0 = 4;
     vec = std::vector<int>{};
     // vec0 теперь неправильный
 
@@ -128,8 +129,8 @@ auto main() -> int { // or int main()
         auto new_list_elem = std::make_unique<ListElement>(3);
         new_list_elem->print();
         // list_ptr --- это голова (начало) списка
-        // new_list_elem->next и list_ptr не могут одновременно владеть объектом
-        // 1
+        // new_list_elem->next и list_ptr не могут
+        // одновременно владеть объектом 1
         new_list_elem->next = std::move(list_ptr);
         // Теперь list_ptr = nullptr (но это не точно)
         // А new_list_elem->next теперь равен прошлому значению list_ptr
@@ -141,8 +142,10 @@ auto main() -> int { // or int main()
     } // здесь удаляется указатель new_list_elem (==nullptr)
     // дописали в начало, теперь список длины 3
 
-    // list_ptr->next = std::move(list_ptr);
+    auto &tmp1 = *list_ptr;
+    list_ptr->next->next = std::move(list_ptr);
     // ^ Утечка памяти: list_ptr никогда не будет удалён
+    tmp1.next = nullptr;
 
     struct List2Element {
         int value;
@@ -175,9 +178,9 @@ auto main() -> int { // or int main()
         std::unique_ptr<List2uElement> head;
         List2uElement *tail = nullptr;
 
-        auto append(int value) {
+        auto append(int value) -> List2uElement & {
             if (head) {
-                assert(tail && !tail->next);
+                assert(tail && !tail->next); // NOLINT
                 tail->next = std::make_unique<List2uElement>(value);
                 tail->next->prev = tail;
                 tail = tail->next.get();
@@ -185,6 +188,22 @@ auto main() -> int { // or int main()
                 head = std::make_unique<List2uElement>(value);
                 tail = head.get();
             }
+            return *tail;
+        }
+
+        auto erase(List2uElement &elem) {
+            auto *next = elem.next.get();
+            auto *prev = elem.prev;
+            if (prev != nullptr)
+                prev->next = std::move(elem.next);
+            else
+                head = std::move(elem.next);
+            // elem после этого удаляется,
+            // так как prev->next им больше не владеет
+            if (next != nullptr)
+                next->prev = next;
+            else
+                tail = next;
         }
     };
 
