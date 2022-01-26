@@ -167,46 +167,6 @@ auto main() -> int { // or int main()
             std::cout << "prev to second is " << second_prev->value << "\n";
     }
 
-    struct List2uElement {
-        int value;
-        std::unique_ptr<List2uElement> next;
-        List2uElement *prev = nullptr;
-        List2uElement(int v) { value = v; }
-    };
-
-    struct List2u {
-        std::unique_ptr<List2uElement> head;
-        List2uElement *tail = nullptr;
-
-        auto append(int value) -> List2uElement & {
-            if (head) {
-                assert(tail && !tail->next); // NOLINT
-                tail->next = std::make_unique<List2uElement>(value);
-                tail->next->prev = tail;
-                tail = tail->next.get();
-            } else {
-                head = std::make_unique<List2uElement>(value);
-                tail = head.get();
-            }
-            return *tail;
-        }
-
-        auto erase(List2uElement &elem) {
-            auto *next = elem.next.get();
-            auto *prev = elem.prev;
-            if (prev != nullptr)
-                prev->next = std::move(elem.next);
-            else
-                head = std::move(elem.next);
-            // elem после этого удаляется,
-            // так как prev->next им больше не владеет
-            if (next != nullptr)
-                next->prev = next;
-            else
-                tail = next;
-        }
-    };
-
     struct Tree {
         std::shared_ptr<Tree> left, right; // лучше std::unique_ptr
     };
