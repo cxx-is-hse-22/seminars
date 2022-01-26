@@ -65,3 +65,7 @@ struct ListElementShared {
 };
 
 auto hasCycles(ListElementShared *list) -> bool;
+auto findCycles(ListElementShared *list) -> ListElementShared *;
+auto getCycleLength(ListElementShared *list) -> int;
+auto findLastCycleNode(ListElementShared *list, int size)
+    -> ListElementShared *;

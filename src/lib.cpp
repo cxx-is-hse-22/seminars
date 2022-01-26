@@ -61,17 +61,43 @@ auto listMiddle(ListElement *list) -> ListElement * {
     return list;
 }
 
-auto hasCycles(ListElementShared *list) -> bool {
+auto findCycles(ListElementShared *list) -> ListElementShared * {
     auto *ptr = list->next.get();
     while (ptr != nullptr) {
         if (list == ptr)
-            return true;
+            return list;
         list = list->next.get();
         ptr = ptr->next.get();
         if (ptr != nullptr)
             ptr = ptr->next.get();
     }
-    return false;
+    return nullptr;
+}
+
+auto getCycleLength(ListElementShared *list) -> int {
+    auto i = 0;
+    auto *start = list;
+    do {
+        list = list->next.get();
+        ++i;
+    } while (list != start);
+    return i;
+}
+
+auto findLastCycleNode(ListElementShared *list, int size)
+    -> ListElementShared * {
+    auto *ptr = list;
+    for (int i = 0; i < size; ++i)
+        ptr = ptr->next.get();
+    while (list->next != ptr->next) {
+        list = list->next.get();
+        ptr = ptr->next.get();
+    }
+    return ptr;
+}
+
+auto hasCycles(ListElementShared *list) -> bool {
+    return findCycles(list) != nullptr;
 }
 
 auto List2u::byPosIndex(int n) const -> List2uElement const * {
