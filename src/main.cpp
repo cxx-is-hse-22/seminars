@@ -205,6 +205,23 @@ auto main() -> int { // or int main()
             else
                 tail = next;
         }
+
+        auto erase_safer(List2uElement &elem) {
+            assert(elem.prev != nullptr || head.get() == &elem);
+            auto owner = /*if*/ (elem.prev != nullptr)
+                             ? /*then*/ std::move(elem.prev->next)
+                             : /*else*/ std::move(head);
+            if (owner->next != nullptr)
+                owner->next->prev = owner->next.get();
+            else
+                tail = owner->next.get();
+
+            if (owner->prev != nullptr)
+                owner->prev->next = std::move(owner->next);
+            else
+                head = std::move(owner->next);
+            assert(owner->next == nullptr);
+        }
     };
 
     struct Tree {
