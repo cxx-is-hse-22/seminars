@@ -81,11 +81,12 @@ struct Stack {
     }
     int operator[](size_t index) const {
         if (index < top)
-            return elements[top - index];
+            return elements[top - index - 1];
         throw std::out_of_range("index too large");
     }
 };
-std::ostream &operator<<(std::ostream &stream, Stack const &stack) {
+// std::ostream &operator<<(std::ostream &stream, Stack const &stack) {
+auto operator<<(std::ostream &stream, Stack const &stack) -> std::ostream & {
     stream << "Stack{";
     for (size_t i = 0; i < stack.top; ++i)
         stream << stack[i] << (i == stack.top - 1 ? "" : ", ");
@@ -113,11 +114,11 @@ struct example1 {
     int v;
     explicit example1(int value) { v = value; }
     explicit example1(std::initializer_list<int> value) {
-        v = int(value.size());
+        v = static_cast<int>(value.size());
     }
     explicit example1(std::initializer_list<int> value,
                       std::initializer_list<int> /*unused*/) {
-        v = int(value.size());
+        v = static_cast<int>(value.size());
     }
 };
 
@@ -130,7 +131,7 @@ auto step4() {
     fmt::print("e1 = {}, e2 = {}, e3 = {}\n", e1.v, e2.v, e3.v);
 }
 struct List3 {
-    int value;
+    int value = 0;
     std::shared_ptr<List3> next /* = nullptr */;
     explicit List3(int v) { value = v; }
     List3(List3 const &other) {
@@ -139,7 +140,7 @@ struct List3 {
             next = std::make_shared<List3>(*other.next);
         // *next = *other.next;
     }
-    List3 &operator=(List3 const &other) {
+    auto operator=(List3 const &other) -> List3 & {
         if (this == &other) // если l3 = l3; просто оптимизация
             return *this;
         value = other.value;
@@ -172,7 +173,7 @@ List3 make_mylist() {
 auto step5() {
     auto l1 = List3(3);
     l1.next = std::make_shared<List3>(2);
-    auto l2 = l1;
+    auto l2 = l1; // auto l2{l1}; auto l2 = List3{l1};
     l2.next->value = 4;
     l1 = l2;
     fmt::print("l1: {}, {}\n", l1.value, l1.next->value);
