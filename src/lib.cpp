@@ -87,8 +87,11 @@ auto getCycleLength(ListElementShared *list) -> int {
 auto findLastCycleNode(ListElementShared *list, int size)
     -> ListElementShared * {
     auto *ptr = list;
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < size - 1; ++i)
         ptr = ptr->next.get();
+    if (ptr->next.get() == list)
+        return ptr;
+    ptr = ptr->next.get();
     while (list->next != ptr->next) {
         list = list->next.get();
         ptr = ptr->next.get();

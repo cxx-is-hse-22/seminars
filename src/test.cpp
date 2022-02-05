@@ -61,5 +61,9 @@ TEST_CASE("cycle") {
     auto size = getCycleLength(findCycles(head.get()));
     REQUIRE(size == 5);
     REQUIRE(findLastCycleNode(head.get(), size) == tail);
+    tail->next = head;
+    size = getCycleLength(findCycles(head.get()));
+    REQUIRE(size == 6);
+    REQUIRE(findLastCycleNode(head.get(), size) == tail);
     tail->next = nullptr;
 }
