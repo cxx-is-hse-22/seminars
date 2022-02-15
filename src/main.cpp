@@ -140,8 +140,16 @@ struct List3 {
     explicit List3(int v) { value = v; }
     List3(List3 const &other) {
         value = other.value;
-        if (other.next)
-            next = std::make_shared<List3>(*other.next);
+        // if (other.next)
+        //     next = std::make_shared<List3>(*other.next);
+            // List3{*other.next}
+        auto *from = other.next.get();
+        auto *to = this;
+        while (from != nullptr) {
+            to->next = std::make_shared<List3>(from->value);
+            to = to->next.get();
+            from = from->next.get();
+        }
         // *next = *other.next;
     }
     auto operator=(List3 const &other) -> List3 & {
@@ -153,6 +161,9 @@ struct List3 {
         else
             next = nullptr;
         return *this;
+        // Зачем возвращать *this?
+        // l1 = l2 = l3
+        // if ((l1 = l2).value != 0)
     }
     List3(List3 &&other) = default;
     auto operator=(List3 &&other) noexcept -> List3 & {
