@@ -3,6 +3,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <memory>
 #include <vector>
@@ -128,7 +129,8 @@ void bubble_sort(auto &vec) {
     }
 }
 
-auto find_if(auto begin, auto end, auto const &conditiion) {
+auto find_if(std::forward_iterator auto begin, auto end,
+             auto const &conditiion) {
     for (auto iter = begin; iter!= end; ++iter)
         if (conditiion(*iter))
             return iter;
@@ -144,5 +146,10 @@ int main() {
   step03();
   auto arr = std::vector{6,5,4,3,2,1};
   simple_sort(arr);
+  auto vec = std::vector{1,2,3};
+  fmt::print("Found {} at {} of {}\n", 3,
+             find_if(begin(vec), end(vec), [](int a) { return a == 3; }) -
+                 begin(vec),
+             vec);
   return 0;
 }
