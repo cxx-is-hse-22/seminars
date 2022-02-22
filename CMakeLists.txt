@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 project(Homework CXX)
-set(CMAKE_CXX_STANDARD 17) # CMAKE_CXX_STANDARD = 17
+set(CMAKE_CXX_STANDARD 20) # CMAKE_CXX_STANDARD = 20
 include(cmake/StandardProjectSettings.cmake)
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(default INTERFACE)
-target_compile_features(default INTERFACE cxx_std_17)
+target_compile_features(default INTERFACE cxx_std_20)
 
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(default)
