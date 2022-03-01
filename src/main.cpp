@@ -6,16 +6,6 @@
 #include <ostream>
 #include <set>
 
-struct rect2d { // объявлен в другой библиотеке
-    float x, y, width, height;
-    // hidden friend
-    friend auto operator<<(std::ostream &s, rect2d const &r) noexcept
-        -> std::ostream & {
-        return s << fmt::format("rect2d({},{},{},{})", r.x, r.y, r.width,
-                                r.height);
-    }
-};
-
 struct Shape {
   public: // есть неявно
     int x, y;
@@ -25,9 +15,9 @@ struct Shape {
     virtual auto circumference() const -> float = 0;
 };
 
-auto area(Shape const &shape) -> float;
+// auto area(Shape const &shape) -> float;
 
-class Rectangle : virtual public Shape {
+class Rectangle : public virtual Shape {
   public:
     Rectangle(int x = 0, int y = 0, int width = 0, int height = 0)
         : Shape{x, y}, width(width), height(height) {}
@@ -56,6 +46,16 @@ class Rectangle : virtual public Shape {
     // }
 };
 
+void call_draw(Shape const &shape) { shape.draw(); }
+
+void step01() {
+    Rectangle rect;
+    rect.draw();
+    Shape &my_shape = rect;
+    my_shape.draw();
+    call_draw(rect);
+}
+
 struct Diamond : virtual Shape {
     Diamond(int x, int y, int side, float angle)
         : Shape{x, y}, side{side}, angle{angle} {}
@@ -70,16 +70,47 @@ struct Diamond : virtual Shape {
     friend auto area(Shape const &shape) -> float;
 };
 
+// "dynamic overload"
+auto area(Shape const &shape) -> float {
+    // Code smell
+    if (auto rect = dynamic_cast<Rectangle const *>(&shape))
+        return static_cast<float>(rect->width * rect->height);
+    if (auto diamond = dynamic_cast<Diamond const *>(&shape))
+        return static_cast<float>(diamond->side * diamond->side) *
+               std::sin(diamond->angle);
+    return 0;
+}
+
+// "static overload"
+auto area(Rectangle const &rect) -> float { return rect.width * rect.height; }
+
+void step02() {
+    Rectangle rect;
+    Shape &my_shape = rect;
+    area(rect); // calls dynamic overload
+    area(my_shape); // calls static overload
+}
+
+auto print2d(rect2d const &r) {
+    fmt::print("rect2d({},{},{},{})\n", r.x, r.y, r.width, r.height);
+}
+
+void step03() {
+    Rectangle rect;
+    print2d(rect);
+    std::cout << static_cast<rect2d>(rect);
+}
+
+
 constexpr double pi = 3.1415926;
 struct Square : Rectangle, Diamond {
     Square(int x, int y, int side)
         : Shape{x, y}, Rectangle(x, y, side, side),
           Diamond(x, y, side, pi / 2) {}
     void draw() const override { Rectangle::draw(); }
+    // using Rectangle::draw;
     auto circumference() const -> float override { return float(4 * side); }
 };
-
-void call_draw(Shape const &shape) { shape.draw(); }
 
 void call_draw_and_delete(std::unique_ptr<Shape> shape) { shape->draw(); }
 
@@ -90,21 +121,6 @@ auto down_cast(std::unique_ptr<Shape> &&shape) -> std::unique_ptr<Rectangle> {
         return std::unique_ptr<Rectangle>(
             dynamic_cast<Rectangle *>(shape.release()));
     return nullptr;
-}
-
-auto area(Shape const &shape) -> float {
-    // Code smell
-    if (auto rect = dynamic_cast<Rectangle const *>(&shape))
-        return rect->width * rect->height;
-    if (auto diamond = dynamic_cast<Diamond const *>(&shape))
-        return diamond->side * diamond->side * std::sin(diamond->angle);
-    return 0;
-}
-
-auto area(Rectangle const &rect) -> float { return rect.width * rect.height; }
-
-auto print2d(rect2d const &r) {
-    fmt::print("rect2d({},{},{},{})\n", r.x, r.y, r.width, r.height);
 }
 
 int main() {
@@ -121,7 +137,7 @@ int main() {
     new_shape->draw();
     new_rect = down_cast(std::move(new_shape));
     call_draw_and_delete(std::move(new_rect));
-    Square sq(0, 0, 1);
+    auto sq = Square(0, 0, 1);
     call_draw(sq);
     auto shapes = std::vector<std::unique_ptr<Shape>>{};
     shapes.emplace_back(std::make_unique<Rectangle>(0, 0, 1, 1));
