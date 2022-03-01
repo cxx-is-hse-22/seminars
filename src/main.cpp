@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <string_view>
 #include <fmt/ranges.h>
 
@@ -21,7 +22,7 @@ struct List {
     List(std::initializer_list<int> list) {
         if (list.size() == 0)
             return;
-        auto it = list.begin();
+        auto it = list.begin(); // NOLINT
         first = std::make_unique<ListNode>(*it);
         last = first.get();
         ++it;
@@ -49,9 +50,10 @@ struct List {
             return *this;
         }
         auto operator++(int) -> iterator { // a++
-            auto *cur = node;
+            auto old = *this;
+            prev = node;
             node = node->next.get();
-            return iterator{{}, cur, cur->prev};
+            return old;
         }
         auto operator--() -> iterator & { // --a
             node = prev;
@@ -59,10 +61,10 @@ struct List {
             return *this;
         }
         auto operator--(int) -> iterator { // a--
-            auto *cur = node;
+            auto old = *this;
             node = prev;
             prev = node->prev;
-            return iterator{{}, cur, cur->prev};
+            return old;
         }
         auto operator*() const -> auto & { return node->value; }
         auto operator->() const { return &node->value; }
@@ -77,6 +79,11 @@ int main() {
     for (auto value : mylist)
         std::cout << value << ", ";
     std::cout << "\n";
+    for (auto it = mylist.begin(); it != mylist.end(); ++it) {
+        auto value = *it;
+        std::cout << value << ", ";
+    }
+    std::cout << "\n";
     std::reverse(mylist.begin(), mylist.end());
     fmt::print("reversed: {}\n", mylist);
     using namespace std::literals;
@@ -84,5 +91,13 @@ int main() {
     for (auto word : words_range{str})
         std::cout << word << ", ";
     std::cout << "\n";
+    std::locale loc{""};
+    fmt::print("Upper: {}\n", std::views::transform(str, [&](char c) {
+                   return std::toupper(c, loc);
+               }));
+
+    for (auto [idx, value] : enumerate(str)) {
+        fmt::print("{}: {}\n", idx, value);
+    }
     return 0;
 }
